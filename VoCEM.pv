@@ -1,0 +1,29 @@
+free c : channel.
+(*Encryption Declarations*)
+type enckey.
+fun senc(bitstring,enckey):bitstring.
+reduc forall x:bitstring, k:enckey; sdec(senc(x,k),k) = x.
+(*Signature Declarations*)
+type signkey.
+fun sign(bitstring,signkey) : bitstring.
+reduc forall x:bitstring, k:signkey; verify(sign(x,k),k) = x.
+(*Key Gen Declarations*)
+type privkey.
+fun enckeygen(privkey): enckey.
+fun signkeygen(privkey): signkey.
+(*Our Private Key*)
+free privateKey: privkey [private].
+query attacker(privateKey).
+(*Main Process*)
+process
+    let ek = enckeygen(privateKey) in
+    let sk = signkeygen(privateKey) in
+    (*Perfrom encryption*)
+    in(c,y:bitstring);
+    let ciph = senc(y,ek) in
+    out(c,(ciph ,sign(ciph,sk)));
+    (*Perfrom decryption*)
+    in(c,(cipher:bitstring,sig:bitstring));
+    if (verify(cipher,sk) = sig) then
+    out(c,sdec(cipher,ek))
+
